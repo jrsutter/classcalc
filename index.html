@@ -40,7 +40,7 @@
       height: 100px;
       font-family: monospace;
       padding: 10px;
-      font-size: 14px;
+      font-size: 18px;
       border-radius: 6px;
       border: 1px solid #ccc;
       margin-bottom: 10px;
@@ -57,7 +57,7 @@
 
     #finalResult {
       margin-top: 30px;
-      font-size: 18px;
+      font-size: 20px;
       background-color: #fff;
       padding: 20px;
       border-radius: 12px;
@@ -185,7 +185,7 @@
       const avg = sum / numbers.length;
       averages[type] = avg;
 
-      const colorClass = avg >= 90 ? "green" : avg >= 70 ? "yellow" : "red";
+      const colorClass = avg >= 90 ? "green" : avg >= 76 ? "yellow" : "red";
       const resultEl = document.getElementById(type + 'Avg');
       resultEl.innerText = `Average: ${avg.toFixed(2)}`;
       resultEl.className = `result ${colorClass}`;

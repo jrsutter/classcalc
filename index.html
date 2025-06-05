@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grade Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f2f5;
+      padding: 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .column {
+      flex: 1;
+      min-width: 300px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      font-family: monospace;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      resize: none;
+    }
+
+    .result {
+      font-weight: bold;
+    }
+
+    .result.green { color: green; }
+    .result.yellow { color: goldenrod; }
+    .result.red { color: red; }
+
+    #finalResult {
+      margin-top: 30px;
+      font-size: 18px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    button {
+      margin-top: 5px;
+      padding: 10px 15px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .danger {
+      background-color: #dc3545;
+    }
+
+    .danger:hover {
+      background-color: #a71d2a;
+    }
+
+    #gradeGraph {
+      margin-top: 20px;
+    }
+
+    .graph-square {
+      width: 20px;
+      height: 20px;
+      border-radius: 2px;
+      transition: transform 0.2s ease;
+    }
+
+    .graph-square:hover {
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+
+    .legend {
+      display: flex;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-color {
+      width: 15px;
+      height: 15px;
+      border-radius: 3px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Grade Calculator</h1>
+
+  <div class="container">
+    <div class="column">
+      <h2>Homeworks</h2>
+      <textarea id="homeworkInput" placeholder="e.g., 90, 85, 92, 100"></textarea>
+      <button onclick="calculateAverage('homework')">Calculate</button>
+      <div class="result" id="homeworkAvg"></div>
+    </div>
+    <div class="column">
+      <h2>Quizzes</h2>
+      <textarea id="quizInput" placeholder="e.g., 75, 80, 78, 90"></textarea>
+      <button onclick="calculateAverage('quiz')">Calculate</button>
+      <div class="result" id="quizAvg"></div>
+    </div>
+    <div class="column">
+      <h2>Tests</h2>
+      <textarea id="testInput" placeholder="e.g., 88, 91, 94"></textarea>
+      <button onclick="calculateAverage('test')">Calculate</button>
+      <div class="result" id="testAvg"></div>
+    </div>
+  </div>
+
+  <div id="finalResult">
+    <button onclick="calculateFinalGrade()">Calculate Final Grade</button>
+    <div id="finalMath" style="margin-top: 10px;"></div>
+    <div id="gradeGraph"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-color" style="background:#007BFF;"></div> Homework</div>
+      <div class="legend-item"><div class="legend-color" style="background:#FFA500;"></div> Quiz</div>
+      <div class="legend-item"><div class="legend-color" style="background:#28a745;"></div> Test</div>
+      <div class="legend-item"><div class="legend-color" style="background:#e0e0e0;"></div> Unfilled</div>
+    </div>
+    <button onclick="clearAll()" class="danger">Clear All</button>
+  </div>
+
+  <script>
+    const maxItems = 50;
+    let averages = { homework: 0, quiz: 0, test: 0 };
+
+    function calculateAverage(type) {
+      const input = document.getElementById(type + 'Input').value;
+      const numbers = input.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+      if (numbers.length > maxItems) {
+        alert("Please enter no more than 50 numbers.");
+        return;
+      }
+      if (numbers.length === 0) {
+        alert("Please enter valid numbers.");
+        return;
+      }
+      const sum = numbers.reduce((a, b) => a + b, 0);
+      const avg = sum / numbers.length;
+      averages[type] = avg;
+
+      const colorClass = avg >= 90 ? "green" : avg >= 70 ? "yellow" : "red";
+      const resultEl = document.getElementById(type + 'Avg');
+      resultEl.innerText = `Average: ${avg.toFixed(2)}`;
+      resultEl.className = `result ${colorClass}`;
+    }
+
+    function calculateFinalGrade() {
+      const hw = averages.homework;
+      const qz = averages.quiz;
+      const ts = averages.test;
+
+      const weighted = (0.2 * hw) + (0.2 * qz) + (0.6 * ts);
+      const math = `
+        Homework Average (20%): ${hw.toFixed(2)} × 0.2 = ${(0.2 * hw).toFixed(2)}<br/>
+        Quiz Average (20%): ${qz.toFixed(2)} × 0.2 = ${(0.2 * qz).toFixed(2)}<br/>
+        Test Average (60%): ${ts.toFixed(2)} × 0.6 = ${(0.6 * ts).toFixed(2)}<br/>
+        <strong>Total Weighted Grade: ${weighted.toFixed(2)}</strong>
+      `;
+      document.getElementById("finalMath").innerHTML = math;
+      drawGradeGraph();
+    }
+
+    function drawGradeGraph() {
+      const hw = (0.2 * averages.homework);
+      const qz = (0.2 * averages.quiz);
+      const ts = (0.6 * averages.test);
+      const total = hw + qz + ts;
+
+      const graphEl = document.getElementById("gradeGraph");
+      graphEl.innerHTML = '';
+
+      const graphContainer = document.createElement('div');
+      graphContainer.style.display = 'grid';
+      graphContainer.style.gridTemplateColumns = 'repeat(10, 20px)';
+      graphContainer.style.gridGap = '2px';
+
+      let squares = [];
+      let filled = 0;
+
+      const segments = [
+        { color: '#007BFF', label: 'Homework', count: Math.round(hw) },
+        { color: '#FFA500', label: 'Quiz', count: Math.round(qz) },
+        { color: '#28a745', label: 'Test', count: Math.round(ts) }
+      ];
+
+      segments.forEach(segment => {
+        for (let i = 0; i < segment.count && filled < 100; i++) {
+          const square = document.createElement('div');
+          square.className = 'graph-square';
+          square.style.backgroundColor = segment.color;
+          square.title = `${segment.label}: 1 point`;
+          square.style.opacity = 0;
+          graphContainer.appendChild(square);
+          setTimeout(() => { square.style.opacity = 1; }, filled * 10);
+          filled++;
+        }
+      });
+
+      while (filled < 100) {
+        const square = document.createElement('div');
+        square.className = 'graph-square';
+        square.style.backgroundColor = '#e0e0e0';
+        square.title = `Unfilled`;
+        square.style.opacity = 0;
+        graphContainer.appendChild(square);
+        setTimeout(() => { square.style.opacity = 1; }, filled * 10);
+        filled++;
+      }
+
+      graphEl.appendChild(graphContainer);
+    }
+
+    function clearAll() {
+      if (!confirm("Are you sure you want to clear all data?")) return;
+
+      ['homework', 'quiz', 'test'].forEach(type => {
+        document.getElementById(type + 'Input').value = '';
+        document.getElementById(type + 'Avg').innerText = '';
+        document.getElementById(type + 'Avg').className = 'result';
+        averages[type] = 0;
+      });
+      document.getElementById("finalMath").innerHTML = '';
+      document.getElementById("gradeGraph").innerHTML = '';
+    }
+  </script>
+</body>
+</html>
